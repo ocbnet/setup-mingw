@@ -153,16 +153,10 @@ runs:
         } elseif ($windows_host) {
             $choco = Locate-Choco
 
+            $pkg = 'mingw'
             $mingw32 = 'mingw32'
             $mingw64 = 'mingw64'
             $mingw = if ($x64) { $mingw64 } else { $mingw32 }
-
-            $mingw_install = Join-Path C: ProgramData chocolatey lib mingw tools install
-            $mingw_root = Join-Path $mingw_install $mingw
-            $mingw_bin = Join-Path $mingw_root bin
-            $mingw_lib = Join-Path $mingw_root $prefix lib
-
-            $pkg = 'mingw'
 
             if ($x64) {
                 # If the 32-bit version is installed, we won't detect that.
@@ -181,6 +175,15 @@ runs:
                     Install-Package $pkg --x86
                 }
             }
+
+            $mingw_install = Join-Path C: ProgramData chocolatey lib mingw tools install
+            if (Test-Path -Path (Join-Path C: ProgramData $mingw64)) {
+                $mingw_install = Join-Path C: ProgramData $mingw64
+            }
+            $mingw_root = Join-Path $mingw_install $mingw
+            $mingw_bin = Join-Path $mingw_root bin
+            $mingw_lib = Join-Path $mingw_root $prefix lib
+
             echo $mingw_bin >> $env:GITHUB_PATH
 
             if ($static_workaround) {
